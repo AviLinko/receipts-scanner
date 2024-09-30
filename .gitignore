@@ -1,0 +1,13 @@
+# Ignore Google Vision API key file
+services/google-vision-key.json
+
+# Ignore environment files
+.env
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore log files
+*.log
