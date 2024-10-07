@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# חיבור למסד הנתונים
+# Connect to the database
 def connect_db():
     conn = psycopg2.connect(
         host=os.getenv("DB_HOST"),
@@ -15,29 +15,29 @@ def connect_db():
     )
     return conn
 
-# פונקציה להוספת או עדכון מוצר
+# Function to add or update a product
 def add_or_update_product(product_name, quantity, user_id):
     conn = connect_db()
     cursor = conn.cursor()
 
     try:
-        # חיפוש מוצר לפי שם ו-user_id
+        # Search for a product by name and user_id
         cursor.execute("SELECT quantity FROM products WHERE name = %s AND user_id = %s", (product_name, user_id))
         result = cursor.fetchone()
 
         if result:
-            # עדכון כמות מוצר קיים
+            # Update quantity of an existing product
             new_quantity = result[0] + quantity
             cursor.execute("UPDATE products SET quantity = %s WHERE name = %s AND user_id = %s", (new_quantity, product_name, user_id))
             message = f"Updated {product_name}, new quantity: {new_quantity}"
         else:
-            # הוספת מוצר חדש
+            # Add a new product
             cursor.execute("INSERT INTO products (name, quantity, user_id) VALUES (%s, %s, %s)", (product_name, quantity, user_id))
             message = f"Added new product: {product_name}, quantity: {quantity}"
 
         conn.commit()
 
-        # שליפת כל המוצרים הקשורים ל-user_id
+        # Retrieve all products related to user_id
         cursor.execute("SELECT name, quantity FROM products WHERE user_id = %s", (user_id,))
         products = cursor.fetchall()
         products_dict = {name: quantity for name, quantity in products}
@@ -52,17 +52,17 @@ def add_or_update_product(product_name, quantity, user_id):
         cursor.close()
         conn.close()
 
-# פונקציה למחיקת מוצר
+# Function to delete a product
 def delete_product(product_name, user_id):
     conn = connect_db()
     cursor = conn.cursor()
 
     try:
-        # מחיקת מוצר לפי שם ו-user_id
+        # Delete a product by name and user_id
         cursor.execute("DELETE FROM products WHERE name = %s AND user_id = %s", (product_name, user_id))
         conn.commit()
 
-        # שליפת כל המוצרים הקשורים ל-user_id
+        # Retrieve all products related to user_id
         cursor.execute("SELECT name, quantity FROM products WHERE user_id = %s", (user_id,))
         products = cursor.fetchall()
         products_dict = {name: quantity for name, quantity in products}
@@ -77,13 +77,13 @@ def delete_product(product_name, user_id):
         cursor.close()
         conn.close()
 
-# פונקציה למחיקת כל המוצרים
+# Function to delete all products
 def delete_all_products(user_id):
     conn = connect_db()
     cursor = conn.cursor()
 
     try:
-        # מחיקת כל המוצרים הקשורים ל-user_id
+        # Delete all products related to user_id
         cursor.execute("DELETE FROM products WHERE user_id = %s", (user_id,))
         conn.commit()
 
@@ -97,13 +97,13 @@ def delete_all_products(user_id):
         cursor.close()
         conn.close()
 
-# פונקציה להחזרת כל המוצרים
+# Function to return all products
 def get_all_products(user_id):
     conn = connect_db()
     cursor = conn.cursor()
 
     try:
-        # שליפת כל המוצרים הקשורים ל-user_id
+        # Retrieve all products related to user_id
         cursor.execute("SELECT name, quantity FROM products WHERE user_id = %s", (user_id,))
         products = cursor.fetchall()
         products_dict = {name: quantity for name, quantity in products}

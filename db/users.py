@@ -5,7 +5,7 @@ import os
 
 load_dotenv()
 
-# התחברות לבסיס הנתונים
+# Connect to the database
 def connect_db():
     conn = psycopg2.connect(
         host=os.getenv("DB_HOST"),
@@ -16,13 +16,13 @@ def connect_db():
     )
     return conn
 
-# פונקציה להצפנת סיסמא עם bcrypt
+# Function to hash a password using bcrypt
 def hash_password(password):
     salt = bcrypt.gensalt() 
     hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
     return hashed.decode('utf-8')  
 
-# פונקציה לשמירת משתמש חדש
+# Function to save a new user
 def save_user(email, password):
     conn = connect_db()
     cursor = conn.cursor()
@@ -30,10 +30,10 @@ def save_user(email, password):
     hashed_password = hash_password(password)
 
     try:
-        # הדפסת הסיסמא המוצפנת לפני השמירה
+        # Print the hashed password before saving
         print(f"Hashed password: {hashed_password}")
 
-        # שמירת הסיסמא המוצפנת כמחרוזת טקסט
+        # Save the hashed password as a string
         cursor.execute(
             "INSERT INTO users (email, password_hash) VALUES (%s, %s)",
             (email, hashed_password)
@@ -47,7 +47,7 @@ def save_user(email, password):
         cursor.close()
         conn.close()
 
-# פונקציה לבדוק סיסמאות בזמן כניסה
+# Function to verify passwords during login
 def login_user(email, password):
     conn = connect_db()
     cursor = conn.cursor()
@@ -62,7 +62,7 @@ def login_user(email, password):
 
         stored_password = result[0]  
 
-        # בדיקה אם הסיסמה המוצפנת תואמת את הסיסמה שסופקה
+        # Check if the hashed password matches the provided password
         if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
             print("Login successful.")
             return True

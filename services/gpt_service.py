@@ -42,11 +42,11 @@ def summarize_receipt(text, user_id):
         content = response.choices[0].message['content'].strip()
         print(f"GPT-3 response received: {content[:100]}...")  
 
-        # חילוץ הפריטים והכמויות
+        # Extract items and quantities
         items = parse_receipt_content(content)
         print(f"Extracted items: {items}")  
 
-        # שמירת המידע במסד הנתונים
+        # Save the information in the database
         for product_name, quantity in items.items():
             add_or_update_product(product_name, quantity, user_id)  
 
@@ -73,7 +73,7 @@ def parse_receipt_content(content):
 
             try:
                 quantity = int(numeric_quantity) if numeric_quantity else 1  
-                if not re.match(r'\d+|\d+\.\d+|\d{12,13}', item):  
+                if not re.match(r'\d+|\d+\.\d+|\d{12,13}', item):  # Skip codes/prices
                     items[item] += quantity
                     print(f"Added item: {item}, quantity: {quantity}")  
                 else:
