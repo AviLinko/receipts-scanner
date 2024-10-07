@@ -10,9 +10,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 def get_credentials():
-   
+    # Load Google Vision API credentials
     key_path = os.getenv('GOOGLE_VISION_KEY_PATH')
     
     if not key_path:
@@ -20,7 +19,7 @@ def get_credentials():
     
     return service_account.Credentials.from_service_account_file(key_path)
 
-# פונקציה לעיבוד התמונה עם Google Vision API
+# Function to process the image with Google Vision API
 def analyze_image(base64_image):
     try:
         print("Starting image analysis...")  
@@ -30,7 +29,7 @@ def analyze_image(base64_image):
         image = Image.open(io.BytesIO(decoded_image_data))
         print("Image opened successfully.")  
 
-       
+        # Convert image to byte array for Google Vision API
         byte_array = io.BytesIO()
         image.save(byte_array, format="PNG")
         byte_array = byte_array.getvalue()
@@ -42,12 +41,12 @@ def analyze_image(base64_image):
         print("Request to Google Vision prepared.")  
         response = client.annotate_image(request)
 
-        
+        # Check for any errors from Google Vision API
         if response.error.message:
             print(f"Google Vision API error: {response.error.message}")
             return jsonify({"error": response.error.message}), 500
 
-        
+        # Extract and return detected texts
         detected_texts = "\n".join([text.description for text in response.text_annotations])
         print(f"Detected texts: {detected_texts[:50]}...")  
         return jsonify({"texts": detected_texts}), 200

@@ -16,24 +16,24 @@ CORS(app)
 
 SECRET_KEY = os.getenv('SECRET_KEY')  
 
-# פונקציה ליצירת JWT
+# Function to create JWT
 def create_jwt(user_id):
     payload = {
         'user_id': user_id,
-        'exp': datetime.utcnow() + timedelta(hours=1)  # תוקף של שעה
+        'exp': datetime.utcnow() + timedelta(hours=1)  # Token expiration in 1 hour
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
     return token
 
-# פונקציה לאימות JWT
+# Function to verify JWT
 def verify_jwt(token):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         return payload
     except jwt.ExpiredSignatureError:
-        return None  # הטוקן פג תוקף
+        return None  # Token has expired
     except jwt.InvalidTokenError:
-        return None  # הטוקן לא תקין
+        return None  # Invalid token
 
 @app.route('/')
 def serve_react_app():
@@ -43,7 +43,7 @@ def serve_react_app():
 def serve_react_paths(path):
     return send_from_directory(app.static_folder, 'index.html')
 
-# נתיב לרישום משתמש חדש
+# Route for user signup
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.json
@@ -59,7 +59,7 @@ def signup():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# נתיב להתחברות משתמש
+# Route for user login
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -70,13 +70,13 @@ def login():
         return jsonify({"error": "Missing email or password"}), 400
 
     if login_user(email, password):
-        # יצירת JWT
+        # Create JWT
         token = create_jwt(email)
         return jsonify({"message": "Login successful", "token": token}), 200
     else:
         return jsonify({"error": "Invalid credentials"}), 401
 
-# נתיב להוספה או עדכון מוצר
+# Route to add or update a product
 @app.route('/products/update', methods=['POST'])
 def update_product():
     token = request.headers.get('Authorization')
@@ -98,7 +98,7 @@ def update_product():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# נתיב למחיקת מוצר
+# Route to delete a product
 @app.route('/products/delete/<string:product_name>', methods=['DELETE'])
 def delete_product_route(product_name):
     token = request.headers.get('Authorization')
@@ -108,13 +108,13 @@ def delete_product_route(product_name):
 
     user_id = user_data['user_id']
     try:
-        print(f"Product to delete: {product_name}")  # הדפסת שם המוצר לבדיקה
+        print(f"Product to delete: {product_name}")  # Print product name for debugging
         message, products = delete_product(product_name, user_id)
         return jsonify({"message": message, "products": products}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# נתיב למחיקת כל המוצרים
+# Route to delete all products
 @app.route('/products/delete-all', methods=['DELETE'])
 def delete_all_products_route():
     token = request.headers.get('Authorization')
@@ -129,7 +129,7 @@ def delete_all_products_route():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# נתיב להצגת כל המוצרים
+# Route to get all products
 @app.route('/products', methods=['GET'])
 def list_products():
     token = request.headers.get('Authorization')
@@ -144,7 +144,7 @@ def list_products():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# נתיב לניתוח תמונה באמצעות Google Vision API
+# Route to analyze image using Google Vision API
 @app.route('/analyze-image', methods=['POST'])
 def analyze_image_route():
     token = request.headers.get('Authorization')
@@ -165,13 +165,10 @@ def analyze_image_route():
 
     extracted_text = vision_response.get_json().get('texts')
     
-    # העברת user_id לפונקציה summarize_receipt
+    # Passing user_id to summarize_receipt function
     response = summarize_receipt(extracted_text, user_id)
     
     return response
-
-
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
