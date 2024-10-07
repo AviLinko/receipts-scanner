@@ -1,7 +1,7 @@
 # receipts-scanner
 
 
-This project is a full-stack receipt scanning application built using **Python Flask** for the backend, with the frontend (React) pre-built and served from the backend. The application allows users to capture a receipt using their device’s camera, upload it to an AWS S3 bucket, extract text using **Google Vision API**, and summarize the products using **ChatGPT API**. Product data is stored in a PostgreSQL database and displayed in the frontend for easy tracking.
+This project is a full-stack receipt scanning application built using **Python Flask** for the backend, with the frontend (React) pre-built and served from the backend. The application allows users to capture a receipt using their device’s camera, extract text using **Google Vision API**, and summarize the products using **ChatGPT API**. Product data is stored in a PostgreSQL database and displayed in the frontend for easy tracking.
 
 ## Table of Contents
 - [Features](#features)
@@ -22,7 +22,7 @@ This project is a full-stack receipt scanning application built using **Python F
 
 ## Technologies
 - **Frontend**: React, JavaScript, HTML, CSS (pre-built and served via Flask)
-- **Backend**: Python, Flask, Google Vision API, ChatGPT API, AWS S3
+- **Backend**: Python, Flask, Google Vision API, ChatGPT API.
 - **Database**: PostgreSQL
 - **Deployment**: Docker (optional for containerization)
 
